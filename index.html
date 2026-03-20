@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeSearch AI编程点子王的搜索引擎</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            border-bottom: 1px solid #30363d;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        header p {
+            color: #8b949e;
+            font-size: 1rem;
+        }
+
+        .about-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #8b949e;
+            background: transparent;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .about-btn:hover {
+            color: #e6edf3;
+            border-color: #8b949e;
+            background: #161b22;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e6edf3;
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #e6edf3;
+        }
+
+        .modal-body {
+            color: #8b949e;
+            line-height: 1.8;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section-title {
+            color: #e6edf3;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .modal-section-content {
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .modal-section-content a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .modal-section-content a:hover {
+            text-decoration: underline;
+        }
+
+        .modal-footer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #30363d;
+            color: #6e7681;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .search-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        .config-section {
+            margin-bottom: 20px;
+        }
+
+        .config-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .config-row label {
+            color: #8b949e;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .config-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .config-row input[type="text"],
+        .config-row input[type="password"] {
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 14px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            transition: border-color 0.2s;
+        }
+
+        .config-row input[type="text"]:focus,
+        .config-row input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input-group input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 16px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            transition: border-color 0.2s;
+        }
+
+        .search-input-group input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background: #238636;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-btn:hover {
+            background: #2ea043;
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-top: 20px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #8b949e;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #e6edf3;
+        }
+
+        .tab.active {
+            color: #e6edf3;
+            border-bottom-color: #667eea;
+        }
+
+        .filter-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            color: #8b949e;
+            font-size: 14px;
+        }
+
+        .filter-toggle input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .results-container.active {
+            display: block;
+        }
+
+        .history-container {
+            display: none;
+        }
+
+        .history-container.active {
+            display: block;
+        }
+
+        .analysis-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .analysis-box h3 {
+            color: #e6edf3;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .analysis-item {
+            margin-bottom: 12px;
+        }
+
+        .analysis-label {
+            font-weight: 600;
+            color: #e6edf3;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .analysis-value {
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #21262d;
+            color: #e6edf3;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+            border: 1px solid #30363d;
+        }
+
+        .repo-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .repo-card:hover {
+            border-color: #8b949e;
+        }
+
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .repo-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .repo-title a {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #58a6ff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .repo-title a:hover {
+            color: #79c0ff;
+        }
+
+        .repo-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .repo-stats {
+            display: flex;
+            gap: 16px;
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+
+        .repo-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .repo-description {
+            color: #8b949e;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .repo-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 12px;
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+
+        .repo-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .tech-tag {
+            padding: 2px 8px;
+            background: #0d1117;
+            color: #e6edf3;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid #30363d;
+        }
+
+        .tech-tag.python { color: #3572A5; }
+        .tech-tag.javascript { color: #f1e05a; }
+        .tech-tag.typescript { color: #2b7489; }
+        .tech-tag.java { color: #b07219; }
+        .tech-tag.go { color: #00ADD8; }
+        .tech-tag.rust { color: #dea584; }
+        .tech-tag.cpp { color: #f34b7d; }
+        .tech-tag.csharp { color: #239120; }
+        .tech-tag.fastapi { color: #009688; }
+        .tech-tag.flask { color: #000000; }
+        .tech-tag.django { color: #092e20; }
+        .tech-tag.react { color: #61dafb; }
+        .tech-tag.vue { color: #41b883; }
+        .tech-tag.angular { color: #dd0031; }
+        .tech-tag.nodejs { color: #339933; }
+        .tech-tag.express { color: #000000; }
+        .tech-tag.tensorflow { color: #FF6F00; }
+        .tech-tag.pytorch { color: #EE4C2C; }
+        .tech-tag.docker { color: #2496ED; }
+        .tech-tag.kubernetes { color: #326CE5; }
+        .tech-tag.redis { color: #DC382D; }
+        .tech-tag.mongodb { color: #47A248; }
+        .tech-tag.postgresql { color: #336791; }
+        .tech-tag.mysql { color: #4479A1; }
+
+        .repo-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .repo-action-btn {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #21262d;
+            color: #e6edf3;
+        }
+
+        .repo-action-btn:hover {
+            background: #30363d;
+        }
+
+        .repo-action-btn.saved {
+            background: #238636;
+            border-color: #238636;
+        }
+
+        .repo-action-btn.saved:hover {
+            background: #2ea043;
+        }
+
+        .history-item {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .history-item:hover {
+            border-color: #8b949e;
+        }
+
+        .history-query {
+            font-weight: 500;
+            color: #e6edf3;
+        }
+
+        .history-meta {
+            display: flex;
+            gap: 15px;
+            color: #8b949e;
+            font-size: 0.85rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #8b949e;
+            font-size: 1.1rem;
+        }
+
+        .loading-spinner {
+            border: 3px solid #21262d;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b949e;
+        }
+
+        .error-message {
+            background: #1c1c1c;
+            border: 1px solid #f85149;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            color: #f85149;
+        }
+
+        .match-score {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #21262d;
+            color: #58a6ff;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid #30363d;
+        }
+
+        .filter-info {
+            color: #8b949e;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            background: #161b22;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .search-input-group {
+                flex-direction: column;
+            }
+
+            .repo-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .repo-stats {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .filter-toggle {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+
+        .notice-box {
+            background: #1f6feb22;
+            border: 1px solid #1f6feb;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            position: relative;
+        }
+
+        .notice-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .notice-content p {
+            color: #8b949e;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 4px 0;
+        }
+
+        .notice-content a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .notice-content a:hover {
+            text-decoration: underline;
+        }
+
+        .notice-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notice-close:hover {
+            color: #e6edf3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="about-btn" onclick="showAboutModal()">关于</button>
+            <h1>VibeSearch</h1>
+            <p>AI 编程点子王的搜索引擎</p>
+        </header>
+
+        <div class="notice-box">
+            <div class="notice-icon">ℹ️</div>
+            <div class="notice-content">
+                <p><strong>搜索说明：</strong>每次输入关键词后，系统将通过 AI 模型对语义进行分析并重整搜索词，搜索结果会根据自然语言输入进行优化，预计 1-5 分钟内显示搜索结果。</p>
+                <p><strong>提示：</strong>如果遇到网络错误或超时，请等待 30 秒到几分钟后再重新搜索一次。可能是网络连接不稳定或 API 服务端响应慢导致的，重试即可解决。</p>
+                <p>本工具默认使用预设的 API Key（阿里云百炼 qwen3.5-plus 模型，每 5 小时可提交 1200 次；GitHub API 每小时最多 5000 次）</p>
+                <p>由于可能因使用次数过多而限流，建议您准备自己的 API Key：</p>
+                <p>• 阿里云百炼 API Key：<a href="https://www.aliyun.com/product/bailian" target="_blank">https://www.aliyun.com/product/bailian</a></p>
+                <p>• GitHub Token：需要创建 Personal access tokens (classic)，并勾选 repo 权限：<a href="https://github.com/settings/tokens" target="_blank">https://github.com/settings/tokens</a></p>
+            </div>
+            <button class="notice-close" onclick="this.parentElement.style.display='none'">×</button>
+        </div>
+
+        <div class="search-box">
+            <div class="config-section">
+                <div class="config-row">
+                    <input type="checkbox" id="useCustomApiKey">
+                    <label for="useCustomApiKey">使用自定义 API Key</label>
+                </div>
+                <div class="config-row" id="apiKeyRow" style="display: none;">
+                    <input type="password" id="apiKeyInput" placeholder="阿里云百炼 API Key">
+                </div>
+                <div class="config-row">
+                    <input type="checkbox" id="useCustomBaseUrl">
+                    <label for="useCustomBaseUrl">使用自定义接口地址</label>
+                </div>
+                <div class="config-row" id="baseUrlRow" style="display: none;">
+                    <input type="text" id="baseUrlInput" placeholder="接口地址 (兼容 OpenAI 接口协议工具)">
+                </div>
+                <div class="config-row">
+                    <input type="checkbox" id="useGithubToken">
+                    <label for="useGithubToken">使用 GitHub Token</label>
+                </div>
+                <div class="config-row" id="githubTokenRow" style="display: none;">
+                    <input type="password" id="githubTokenInput" placeholder="GitHub Personal Access Token（可选）">
+                </div>
+            </div>
+
+            <div class="search-input-group">
+                <input type="text" id="searchInput" placeholder="通过7个不同视角的智能体，对 AI 行业事件进行多维度分析和推演" autofocus>
+                <button class="search-btn" id="searchBtn">搜索</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="results">搜索结果</button>
+                <button class="tab" data-tab="history">搜索历史</button>
+                <div class="filter-toggle">
+                    <input type="checkbox" id="searchGitHub" checked>
+                    <label for="searchGitHub">GitHub项目</label>
+                </div>
+                <div class="filter-toggle">
+                    <input type="checkbox" id="searchClawHub" checked>
+                    <label for="searchClawHub">ClawHub Skills</label>
+                </div>
+                <div class="filter-toggle">
+                    <input type="checkbox" id="onlyChinese">
+                    <label for="onlyChinese">仅中文</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-container active" id="resultsContainer">
+            <div id="loadingState" class="loading" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>正在分析查询并搜索 GitHub...</p>
+            </div>
+
+            <div id="errorState" style="display: none;"></div>
+
+            <div id="emptyState" class="empty-state">
+                <p>输入关键词开始搜索</p>
+            </div>
+
+            <div id="filterInfo" class="filter-info" style="display: none;"></div>
+
+            <div id="analysisBox" class="analysis-box" style="display: none;">
+                <h3>查询分析</h3>
+                <div id="analysisContent"></div>
+            </div>
+
+            <div id="resultsList"></div>
+        </div>
+
+        <div class="history-container" id="historyContainer">
+            <div id="historyList"></div>
+        </div>
+
+        
+    </div>
+
+    <script>
+        const state = {
+            currentTab: 'results',
+            searchResults: [],
+            searchGitHub: true,
+            searchClawHub: true,
+            onlyChinese: false,
+            defaultSearch: '通过7个不同视角的智能体，对 AI 行业事件进行多维度分析和推演',
+            hasUserInput: false
+        };
+
+        // 配置管理
+        const config = {
+            load: function() {
+                const saved = localStorage.getItem('vibecoding_config');
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        if (data.apiKey) {
+                            elements.apiKeyInput.value = data.apiKey;
+                            elements.useCustomApiKey.checked = true;
+                            elements.apiKeyRow.style.display = 'flex';
+                        }
+                        if (data.baseUrl) {
+                            elements.baseUrlInput.value = data.baseUrl;
+                            elements.useCustomBaseUrl.checked = true;
+                            elements.baseUrlRow.style.display = 'flex';
+                        }
+                        if (data.githubToken) {
+                            elements.githubTokenInput.value = data.githubToken;
+                            elements.useGithubToken.checked = true;
+                            elements.githubTokenRow.style.display = 'flex';
+                        }
+                        if (data.searchGitHub !== undefined) {
+                            state.searchGitHub = data.searchGitHub;
+                            elements.searchGitHub.checked = data.searchGitHub;
+                        }
+                        if (data.searchClawHub !== undefined) {
+                            state.searchClawHub = data.searchClawHub;
+                            elements.searchClawHub.checked = data.searchClawHub;
+                        }
+                        if (data.onlyChinese !== undefined) {
+                            state.onlyChinese = data.onlyChinese;
+                            elements.onlyChinese.checked = data.onlyChinese;
+                        }
+                    } catch (e) {
+                        console.error('加载配置失败:', e);
+                    }
+                }
+            },
+            save: function() {
+                const data = {
+                    apiKey: elements.useCustomApiKey.checked ? elements.apiKeyInput.value.trim() : null,
+                    baseUrl: elements.useCustomBaseUrl.checked ? elements.baseUrlInput.value.trim() : null,
+                    githubToken: elements.useGithubToken.checked ? elements.githubTokenInput.value.trim() : null,
+                    searchGitHub: elements.searchGitHub.checked,
+                    searchClawHub: elements.searchClawHub.checked,
+                    onlyChinese: state.onlyChinese
+                };
+                localStorage.setItem('vibecoding_config', JSON.stringify(data));
+            }
+        };
+
+        const elements = {
+            searchInput: document.getElementById('searchInput'),
+            apiKeyInput: document.getElementById('apiKeyInput'),
+            baseUrlInput: document.getElementById('baseUrlInput'),
+            githubTokenInput: document.getElementById('githubTokenInput'),
+            useCustomApiKey: document.getElementById('useCustomApiKey'),
+            useCustomBaseUrl: document.getElementById('useCustomBaseUrl'),
+            useGithubToken: document.getElementById('useGithubToken'),
+            apiKeyRow: document.getElementById('apiKeyRow'),
+            baseUrlRow: document.getElementById('baseUrlRow'),
+            githubTokenRow: document.getElementById('githubTokenRow'),
+            searchBtn: document.getElementById('searchBtn'),
+            searchGitHub: document.getElementById('searchGitHub'),
+            searchClawHub: document.getElementById('searchClawHub'),
+            onlyChinese: document.getElementById('onlyChinese'),
+            tabs: document.querySelectorAll('.tab'),
+            resultsContainer: document.getElementById('resultsContainer'),
+            historyContainer: document.getElementById('historyContainer'),
+            loadingState: document.getElementById('loadingState'),
+            errorState: document.getElementById('errorState'),
+            emptyState: document.getElementById('emptyState'),
+            filterInfo: document.getElementById('filterInfo'),
+            analysisBox: document.getElementById('analysisBox'),
+            analysisContent: document.getElementById('analysisContent'),
+            resultsList: document.getElementById('resultsList'),
+            historyList: document.getElementById('historyList')
+        };
+
+        elements.useCustomApiKey.addEventListener('change', (e) => {
+            elements.apiKeyRow.style.display = e.target.checked ? 'flex' : 'none';
+            config.save();
+        });
+
+        elements.useCustomBaseUrl.addEventListener('change', (e) => {
+            elements.baseUrlRow.style.display = e.target.checked ? 'flex' : 'none';
+            config.save();
+        });
+
+        elements.useGithubToken.addEventListener('change', (e) => {
+            elements.githubTokenRow.style.display = e.target.checked ? 'flex' : 'none';
+            config.save();
+        });
+
+        elements.apiKeyInput.addEventListener('input', () => config.save());
+        elements.baseUrlInput.addEventListener('input', () => config.save());
+        elements.githubTokenInput.addEventListener('input', () => config.save());
+
+        elements.searchBtn.addEventListener('click', handleSearch);
+        elements.searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
+
+        // 监听用户输入，清空默认搜索状态
+        elements.searchInput.addEventListener('input', (e) => {
+            if (!state.hasUserInput && e.target.value.trim() !== '') {
+                state.hasUserInput = true;
+            }
+        });
+
+        elements.searchGitHub.addEventListener('change', (e) => {
+            state.searchGitHub = e.target.checked;
+            filterAndDisplayResults();
+            config.save();
+        });
+
+        elements.searchClawHub.addEventListener('change', (e) => {
+            state.searchClawHub = e.target.checked;
+            filterAndDisplayResults();
+            config.save();
+        });
+
+        elements.onlyChinese.addEventListener('change', (e) => {
+            state.onlyChinese = e.target.checked;
+            if (state.searchResults.length > 0) {
+                filterAndDisplayResults();
+            }
+            config.save();
+        });
+
+        elements.tabs.forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+        });
+
+        function switchTab(tabName) {
+            state.currentTab = tabName;
+
+            elements.tabs.forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+
+            elements.resultsContainer.classList.toggle('active', tabName === 'results');
+            elements.historyContainer.classList.toggle('active', tabName === 'history');
+
+            if (tabName === 'history') {
+                loadHistory();
+            }
+        }
+
+        async function handleSearch() {
+            let query = elements.searchInput.value.trim();
+
+            // 如果输入为空或只有空格，使用默认搜索词
+            if (!query) {
+                query = state.defaultSearch;
+                elements.searchInput.value = ''; // 保持输入框为空，不显示默认值
+                state.hasUserInput = false;
+            }
+
+            if (!query) {
+                showError('搜索失败：未找到有效的查询内容');
+                return;
+            }
+
+// 已移除来源检查，始终搜索所有来源后筛选显示
+
+            const apiKey = elements.useCustomApiKey.checked ? elements.apiKeyInput.value.trim() : null;
+            const baseUrl = elements.useCustomBaseUrl.checked ? elements.baseUrlInput.value.trim() : null;
+            const githubToken = elements.useGithubToken.checked ? elements.githubTokenInput.value.trim() : null;
+
+            showLoading();
+            switchTab('results');
+
+            try {
+                const response = await fetch('http://101.43.42.100/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query,
+                        apiKey,
+                        baseUrl,
+                        githubToken,
+                        onlyChinese: state.onlyChinese,
+                        searchGitHub: true,
+                        searchClawHub: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    state.searchResults = data.results;
+                    displayResults(data);
+                } else {
+                    let errorDetails = '';
+                    if (data.suggestions && data.suggestions.length > 0) {
+                        errorDetails = '\n\n建议：\n' + data.suggestions.map((s, i) => `${i + 1}. ${s}`).join('\n');
+                    }
+
+                    showError(data.error + errorDetails);
+                }
+            } catch (error) {
+                let errorMessage = '网络错误，请检查连接后重试';
+                console.error('Search error:', error);
+
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage += '\n\n可能是服务器或网络问题，请稍后重试。';
+                }
+
+                showError(errorMessage);
+            }
+        }
+
+        function showLoading() {
+            elements.loadingState.style.display = 'block';
+            elements.errorState.style.display = 'none';
+            elements.emptyState.style.display = 'none';
+            elements.analysisBox.style.display = 'none';
+            elements.filterInfo.style.display = 'none';
+            elements.resultsList.innerHTML = '';
+        }
+
+        function showError(message) {
+            elements.loadingState.style.display = 'none';
+            elements.errorState.style.display = 'block';
+            elements.errorState.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+
+        function displayResults(data) {
+            elements.loadingState.style.display = 'none';
+            elements.errorState.style.display = 'none';
+            elements.emptyState.style.display = 'none';
+            elements.analysisBox.style.display = 'none';
+
+            if (data.results && data.results.length > 0) {
+                if (data.filteredCount > 0) {
+                    elements.filterInfo.style.display = 'block';
+                    elements.filterInfo.innerHTML = `已过滤掉 ${data.filteredCount} 个结果`;
+                }
+                elements.resultsList.innerHTML = data.results.map(repo => createRepoCard(repo)).join('');
+            } else {
+                elements.emptyState.style.display = 'block';
+                elements.emptyState.innerHTML = '<p>未找到相关结果，请尝试其他关键词</p>';
+            }
+        }
+
+        function filterAndDisplayResults() {
+            if (state.searchResults.length === 0) return;
+            
+            // 按来源和中文筛选
+            let filtered = state.searchResults.filter(repo => {
+                if (repo.type === 'github' && !state.searchGitHub) return false;
+                if (repo.type === 'clawhub' && !state.searchClawHub) return false;
+                if (state.onlyChinese && repo.chinese_score <= 0) return false;
+                return true;
+            });
+
+            if (filtered.length > 0) {
+                elements.filterInfo.style.display = 'block';
+                elements.filterInfo.innerHTML = `显示 ${filtered.length} 个结果（共 ${state.searchResults.length} 个）`;
+                elements.resultsList.innerHTML = filtered.map(repo => createRepoCard(repo)).join('');
+            } else {
+                elements.filterInfo.style.display = 'block';
+                elements.filterInfo.innerHTML = '没有找到符合筛选条件的结果';
+                elements.resultsList.innerHTML = '';
+            }
+        }
+
+        function displayAnalysis(analysis) {
+            const content = `
+                <div class="analysis-item">
+                    <div class="analysis-label">核心意图</div>
+                    <div class="analysis-value">${analysis.intent || '未识别'}</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-label">中文关键词</div>
+                    <div class="analysis-value">${(analysis.chinese_keywords || []).join(', ')}</div>
+                </div>
+                <div class="analysis-item">
+                    <div class="analysis-label">英文关键词</div>
+                    <div class="analysis-value">${(analysis.english_keywords || []).join(', ')}</div>
+                </div>
+            `;
+            elements.analysisContent.innerHTML = content;
+        }
+
+        function createRepoCard(repo) {
+            const isGitHub = repo.type === 'github';
+            const isClawHub = repo.type === 'clawhub';
+
+            // GitHub项目显示技术栈，ClawHub Skills显示Skills
+            let techTagsHtml = '';
+            if (isGitHub) {
+                const techTags = (repo.tech_stack || []).slice(0, 8).map(tech => {
+                    const className = tech.toLowerCase().replace(/[^a-z0-9]/g, '');
+                    return `<span class="tech-tag ${className}">${tech}</span>`;
+                }).join('');
+                techTagsHtml = `<div class="tech-stack">${techTags}</div>`;
+            } else if (isClawHub) {
+                techTagsHtml = `<div class="tech-stack"><span class="tech-tag">Skills</span></div>`;
+            }
+
+            const formatDate = (date) => {
+                const d = new Date(date);
+                const now = new Date();
+                const diff = now - d;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+                if (days === 0) return '今天';
+                if (days === 1) return '昨天';
+                if (days < 7) return `${days} 天前`;
+                if (days < 30) return `${Math.floor(days / 7)} 周前`;
+                if (days < 365) return `${Math.floor(days / 30)} 个月前`;
+                return `${Math.floor(days / 365)} 年前`;
+            };
+
+            // 生成复制内容
+            let copyContent = '';
+            if (isGitHub) {
+                copyContent = `帮我安装这个Skill，GitHub链接是 https://github.com/${repo.full_name}`;
+            } else if (isClawHub) {
+                copyContent = `你去clawhub.ai搜索${repo.slug || repo.name}项目，并且帮我安装配置好`;
+            }
+
+            // 生成卡片HTML
+            let cardHtml = '';
+
+            if (isGitHub) {
+                cardHtml = `
+                    <div class="repo-card">
+                        <div class="repo-header">
+                            <div class="repo-title">
+                                <img src="${repo.owner.avatar_url}" alt="${repo.owner.login}" class="repo-avatar">
+                                <a href="${repo.url}" target="_blank">${repo.full_name}</a>
+                            </div>
+                            <div class="repo-stats">
+                                <div class="repo-stat">⭐ ${repo.stars.toLocaleString()}</div>
+                                <div class="repo-stat">🍴 ${repo.forks.toLocaleString()}</div>
+                            </div>
+                        </div>
+                        <p class="repo-description">${repo.description || '暂无描述'}</p>
+                        <div class="repo-meta">
+                            <div class="repo-meta-item">${repo.language || '未知语言'}</div>
+                            <div class="repo-meta-item">更新于 ${formatDate(repo.updated_at)}</div>
+                            ${repo.chinese_score > 0 ? `<div class="repo-meta-item">中文项目</div>` : ''}
+                        </div>
+                        ${techTagsHtml}
+                        <div class="repo-actions">
+                            <button class="repo-action-btn" onclick="copyInstallCommand('${encodeURIComponent(copyContent)}', '${repo.full_name}', 'github')">
+                                复制到CLAW安装
+                            </button>
+                            <a href="${repo.url}" target="_blank" class="repo-action-btn">
+                                查看仓库
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } else if (isClawHub) {
+                // 使用score作为星星数
+                const starsDisplay = repo.downloads || repo.score ? (repo.downloads || repo.score).toFixed(1) + 'K' : '0.0K';
+                cardHtml = `
+                    <div class="repo-card">
+                        <div class="repo-header">
+                            <div class="repo-title">
+                                🦞 <a href="https://clawhub.ai/skills?q=${repo.slug || repo.name}" target="_blank">${repo.name}</a>
+                            </div>
+                            <div class="repo-stats">
+                                <div class="repo-stat">↓ ${starsDisplay}</div>
+                            </div>
+                        </div>
+                        <p class="repo-description">${repo.description || '暂无描述'}</p>
+                        <div class="repo-meta">
+                            <div class="repo-meta-item">作者: ${repo.author || 'unknown'}</div>
+                            ${repo.chinese_score > 0 ? `<div class="repo-meta-item">中文项目</div>` : ''}
+                        </div>
+                        ${techTagsHtml}
+                        <div class="repo-actions">
+                            <button class="repo-action-btn" onclick="copyInstallCommand('${encodeURIComponent(copyContent)}', '${repo.slug || repo.name}', 'clawhub')">
+                                复制到CLAW安装
+                            </button>
+                            <a href="https://clawhub.ai/skills?q=${repo.slug || repo.name}" target="_blank" class="repo-action-btn">
+                                查看 Skill
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return cardHtml;
+        }
+
+        function copyInstallCommand(content, name, type) {
+            const decodedContent = decodeURIComponent(content);
+            copyToClipboard(decodedContent);
+        }
+
+        // 降级复制方法
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showCopySuccessModal();
+            } catch (err) {
+                console.error('降级复制也失败:', err);
+                alert('复制失败，请手动复制：\n' + text);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // 统一复制方法
+        function copyToClipboard(text) {
+            if (window.isSecureContext && navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopySuccessModal();
+                }).catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        // 降级复制方法
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.cssText = 'position:fixed;left:-9999px;top:0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy') ? showCopySuccessModal() : alert('复制失败');
+            } catch(e) {
+                alert('复制失败: ' + text);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function fetchClawHubAuthor(slug) {
+            return fetch('http://101.43.42.100/api/clawhub-author/' + slug)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.author) {
+                        return data.author;
+                    }
+                    return null;
+                })
+                .catch(err => {
+                    console.error('获取作者信息失败:', err);
+                    return null;
+                });
+        }
+
+        function showCopySuccessModal() {
+            const modal = document.getElementById('copySuccessModal');
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+
+        function closeCopySuccessModal() {
+            const modal = document.getElementById('copySuccessModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('http://101.43.42.100/api/history');
+                const data = await response.json();
+                if (data.success) {
+                    displayHistory(data.history);
+                }
+            } catch (error) {
+                console.error('Load history error:', error);
+            }
+        }
+
+        function displayHistory(history) {
+            if (history && history.length > 0) {
+                elements.historyList.innerHTML = history.map(item => `
+                    <div class="history-item" onclick="replaySearch('${item.query}')">
+                        <div class="history-query">${item.query}</div>
+                        <div class="history-meta">
+                            <span>${item.resultsCount} 个结果</span>
+                            <span>${new Date(item.timestamp).toLocaleString('zh-CN')}</span>
+                            <span>${item.apiKeyUsed === 'custom' ? '自定义' : '默认'}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                elements.historyList.innerHTML = '<div class="empty-state"><p>暂无搜索历史</p></div>';
+            }
+        }
+
+        function replaySearch(query) {
+            elements.searchInput.value = query;
+            handleSearch();
+        }
+
+        
+
+        document.addEventListener('DOMContentLoaded', () => {
+            elements.searchInput.focus();
+            config.load();
+
+            // 关于模态框控制
+            function showAboutModal() {
+                const modal = document.getElementById('aboutModal');
+                if (modal) {
+                    modal.classList.add('active');
+                }
+            }
+
+            function closeAboutModal() {
+                const modal = document.getElementById('aboutModal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+            }
+
+            // 点击模态框外部关闭
+            const aboutModal = document.getElementById('aboutModal');
+            if (aboutModal) {
+                aboutModal.addEventListener('click', (e) => {
+                    if (e.target.id === 'aboutModal') {
+                        closeAboutModal();
+                    }
+                });
+            }
+
+            // ESC键关闭模态框
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeAboutModal();
+                }
+            });
+
+            // 将函数暴露到全局作用域，以便HTML中的onclick可以调用
+            window.showAboutModal = showAboutModal;
+            window.closeAboutModal = closeAboutModal;
+            window.copyInstallCommand = copyInstallCommand;
+            window.showCopySuccessModal = showCopySuccessModal;
+            window.closeCopySuccessModal = closeCopySuccessModal;
+            window.replaySearch = replaySearch;
+        });
+    </script>
+
+    <!-- 关于模态框 -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">关于 VibeSearch</h2>
+                <button class="modal-close" onclick="closeAboutModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <div class="modal-section-title">项目简介</div>
+                    <div class="modal-section-content">
+                        VibeSearch 是一款基于 AI 语义分析的智能 GitHub 代码搜索引擎。通过深度学习技术对自然语言查询进行语义理解，为开发者提供精准的代码项目和开源资源推荐。
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">作者信息</div>
+                    <div class="modal-section-content">
+                        <strong>作者：</strong>Liu Yang<br>
+                        <strong>邮箱：</strong><a href="mailto:liu17251086@qq.com">liu17251086@qq.com</a><br>
+                        <strong>微信：</strong>liu222222222222（12个2）
+                    </div>
+                    <div style="margin-top: 15px; text-align: center;">
+                        <img src="http://101.43.42.100/杠杆说.jpg" alt="杠杆说AI" style="width: 150px; height: 150px; border-radius: 8px;">
+                        <p style="margin-top: 10px; font-size: 14px; color: #666;">欢迎大家关注我的公众号「杠杆说AI」</p>
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">技术特性</div>
+                    <div class="modal-section-content">
+                        • 阿里云百炼 qwen3.5-plus 模型进行语义分析<br>
+                        • GitHub API 实时搜索代码仓库<br>
+                        • 智能技术栈识别与匹配<br>
+                        • 中文项目优先推荐<br>
+                        • ClawHub Skills 搜索
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">版权声明</div>
+                    <div class="modal-section-content">
+                        © 2026 VibeSearch. All rights reserved.<br>
+                        本项目遵循 MIT 开源协议。GitHub 搜索功能基于 GitHub API 提供。
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                Made with ❤️ by Liu Yang | 版本 v1.0.0
+            </div>
+        </div>
+    </div>
+
+    <!-- 复制成功提示框 -->
+    <div id="copySuccessModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+            <h2 class="modal-title" style="justify-content: center;">已复制</h2>
+            <p style="color: #8b949e; margin-bottom: 24px;">请去 CLAW 里面粘贴</p>
+            <button class="repo-action-btn" onclick="closeCopySuccessModal()" style="width: 100%;">确定</button>
+        </div>
+    </div>
+</body>
+</html>
