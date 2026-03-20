@@ -6,7 +6,7 @@
 
 - **智能语义分析**：使用阿里云百炼 qwen3.5-plus 模型对搜索词进行语义理解和重整
 - **多源搜索**：同时支持 GitHub 仓库和 ClawHub Skills 搜索
-- **中文优化**：支持中文关键词搜索，自动过滤中文相关项目
+- **中文优化**：支持中文关键词搜索，自动过滤无关项目
 - **技术栈识别**：自动提取项目使用的技术栈标签
 - **搜索历史**：本地保存搜索历史记录
 - **自定义 API Key**：支持使用自己的 API Key 提高调用额度
@@ -155,13 +155,17 @@ GET /api/config
 - 百炼 API：每 5 小时 1200 次，超限后使用自定义 API Key
 - GitHub API：无 Token 时 60 次/小时，建议配置 Token
 
-### 中文搜索效果不佳
+### 中文搜索
 
 勾选"仅中文"选项可以过滤出更相关的中文项目。
 
 ## 项目地址
 
 GitHub: https://github.com/liu222222222222/vibesearch
+
+可以关注我的公众号 杠杆说AI
+
+![杠杆说](https://github.com/user-attachments/assets/6fd346b2-ce07-453a-9ddc-045c4dca8309)
 
 ## License
 
